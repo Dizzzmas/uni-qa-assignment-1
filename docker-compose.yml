@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+  server:
+    hostname: server
+    container_name: server
+    environment:
+      PORT: ~
+    build:
+      context: ./server
+      args:
+        PORT: 5000
+    volumes:
+      - servervol:/usr/app/serverdata
+    ports:
+      - "5000:5000"
+      - "9331:9229" # Debugging
+    networks:
+      - cs_network
+    entrypoint:
+      - /bin/sh
+      - -xc
+    command:
+      - python -m debugpy --listen 0.0.0.0:9229 app.py # Allow debugging
+      - python app.py
+
+  client:
+    hostname: client
+    container_name: client
+    environment:
+      SERVER_PORT: ~
+    build:
+      context: ./client
+      args:
+        SERVER_PORT: 5000
+        SERVER_HOST: http://server
+    volumes:
+      - clientvol:/usr/app/clientdata
+    depends_on:
+      - server
+    ports:
+      - "9332:9230" # Debugging
+    networks:
+      - cs_network
+    entrypoint:
+      - /bin/sh
+      - -xc
+    command: # The while loop in the end prevents the container from shutting down
+      - |
+        python -m debugpy --listen 0.0.0.0:9230 ./app.py
+        python app.py
+
+        while true; do
+        sleep 100
+        done
+
+volumes:
+  servervol:
+  clientvol:
+
+networks:
+  cs_network:
