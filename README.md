@@ -15,7 +15,7 @@ Run `sh ./start.sh` for quickstart.
 This command will:
 
 - Build docker images for client/server
-- Create a user-defined network named `qa_assignment_1`
+- Create a user-defined network named `qa_assignment_1_cs_network`
 - Create docker volumes `servervol` and `clientvol`
 - Run the server container with the Flask app
 - Run the client container which will immediately request a file from the server, write it to `clientdata` and compare checksums.
